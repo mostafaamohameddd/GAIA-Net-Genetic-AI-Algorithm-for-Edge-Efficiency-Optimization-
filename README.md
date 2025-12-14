@@ -81,11 +81,17 @@ Presentation Layer (app.py / Flask): Exposes the evolve function to the web inte
 ## 6. Technologies Used
 Category,Component,Description
 Core Languages,Python 3.x,Main development language.
+
 AI / ML,TensorFlow / Keras,Deep Learning framework for model building and training.
+
 Evolutionary Comp.,DEAP Library,Framework used to implement the Genetic Algorithm pipeline.
+
 Data Science,"NumPy, Pandas, Scikit-learn",Data handling and preprocessing utilities.
+
 Web Deployment,Flask,Lightweight Python framework for serving the GA execution and results dashboard.
+
 Testing,"test_endpoints.py, test_ga_functional.py",Ensures robustness of the web application and core GA logic.
+
 
 ## 7. Key Results & Achievements
 Successful Edge Model Discovery: Identified a minimal architecture (e.g., two layers, 1,611 parameters) that maintained high classification accuracy while staying well within the $10,000$ parameter limit.
