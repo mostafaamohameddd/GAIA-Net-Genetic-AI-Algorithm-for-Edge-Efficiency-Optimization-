@@ -58,12 +58,24 @@ Web Deployment: A Flask server hosts the system, allowing users to monitor the e
 
 ## 3. Problem & Solution
 The ProblemStandard Deep Learning models are often too large and computationally expensive (High FLOPs) to run efficiently on small Edge devices (MCUs
-, low-power SoCs) due to limited RAM, ROM, and stringent power budgets.The GAIA-Net SolutionWe use the Genetic Algorithm to intelligently explore the immense space of possible neural network architectures,
-guided by a fitness score that penalizes models exceeding the hardware limits first, before rewarding high accuracy.Hard Constraints Imposed
+, low-power SoCs) due to limited RAM, ROM, and stringent power budgets.
+
+The GAIA-Net SolutionWe use the Genetic Algorithm to intelligently explore the immense space of possible neural network architectures,
+guided by a fitness score that penalizes models exceeding the hardware limits first, before rewarding high accuracy.
+
+Hard Constraints Imposed
 :| Constraint | Value | Purpose || :--- | :--- | :--- || Minimum Accuracy | e.g., $75\%$ | Ensures basic functional performance. || Maximum Parameters | e.g., $10,000$ | Memory footprint constraint. || Maximum Inference Time | e.g., $1.0$ second/sample | Real-time latency constraint. |
 
+
+
 ## 4. Methodology: The Genetic Algorithm
-The system is built around the DEAP framework for evolutionary computation.Chromosome RepresentationThe chromosome (Individual) is a variable-length list representing the entire network:$$[\text{Num\_Layers}, (\text{Neurons}_1, \text{Activation}_1), \dots, (\text{Neurons}_n, \text{Activation}_n), \text{Learning\_Rate}]$$Core OperationsInitialization (create_chromosome): Generates random initial architectures within layer/neuron ranges.Crossover (tools.cxOnePoint): Used due to the variable length of the chromosomes (variable number of layers), ensuring the integrity of the architecture design during mating.Mutation (random_resetting_mutation): Each gene (Layer count, Neurons, Activation, LR) is mutated independently with a specified rate.Fitness Evaluation (FitnessCalculator): The core logic that builds, trains, evaluates, and applies the hard constraints before calculating the soft objective score.
+The system is built around the DEAP framework for evolutionary computation.Chromosome RepresentationThe chromosome (Individual) is a variable-length list representing the entire network:$$[\text{Num\_Layers}, (\text{Neurons}_1, \text{Activation}_1), \dots, (\text{Neurons}_n, \text{Activation}_n), \text{Learning\_Rate}]$$Core OperationsInitialization (create_chromosome): Generates random initial architectures within layer/neuron ranges.
+
+Crossover (tools.cxOnePoint): Used due to the variable length of the chromosomes (variable number of layers), ensuring the integrity of the architecture design during mating.
+
+Mutation (random_resetting_mutation): Each gene (Layer count, Neurons, Activation, LR) is mutated independently with a specified rate.
+
+Fitness Evaluation (FitnessCalculator): The core logic that builds, trains, evaluates, and applies the hard constraints before calculating the soft objective score.
 
 ## 5. System Architecture
 The project employs a clear separation of concerns, facilitating unit testing and scalability:
@@ -95,9 +107,17 @@ Testing,"test_endpoints.py, test_ga_functional.py",Ensures robustness of the web
 
 ## 7. Key Results & Achievements
 Successful Edge Model Discovery: Identified a minimal architecture (e.g., two layers, 1,611 parameters) that maintained high classification accuracy while staying well within the $10,000$ parameter limit.
+
+
 Robustness of GA: Successfully implemented variable-length chromosome support through tailored crossover and mutation operations, solving common instability issues in NAS.
+
+
 Deployment Readiness: The system provides a final, trained, and optimized model configuration (Best Genome) that can be directly exported (e.g., to TensorFlow Lite) for Edge deployment.
-Performance: Achieved high scores (e.g., Fitness $0.5$ to $0.8$) on viable individuals, demonstrating the superior performance of the GA-optimized models compared to randomly generated onesز
+
+
+Performance: Achieved high scores (e.g., Fitness $0.5$ to $0.8$) on viable individuals, demonstrating the superior performance of the GA-optimized models compared to randomly generated ones.
+
+
 
 ## 8. Deployment & Usage
 The Deployment Artifact (Best Genome)
@@ -129,23 +149,51 @@ Open your browser and navigate to http://127.0.0.1:5000 to start the evolution p
 
 GAIA-Net-Project/
 ├── templates/                 # Frontend HTML pages (Dashboard, Analysis)
+
+
 ├── static/                    # CSS, JavaScript, and asset files
+
+
 ├── tests/
 │   ├── test_endpoints.py      # Flask API unit tests
 │   └── test_ga_functional.py  # Core GA logic functional tests
+
+
 ├── app.py                     # Flask entry point and web routing
+
+
 ├── config.py                  # Global variables and constants (Crucial for defining Constraints)
+
+
 ├── data_loader.py             # Data preparation
+
+
 ├── fitness_calculator.py      # Fitness function logic
+
+
 ├── ga_service.py              # Service layer for starting and managing GA execution
+
+
 ├── genetic_algorithms.py      # DEAP implementation
+
+
 ├── neural_network.py          # Keras model builder
+
+
 ├── utils.py                   # Helper functions
+
+
 ├── requirements.txt           # Dependencies list
+
+
 └── .gitignore                 # Files excluded from GitHub (e.g., __pycache__, venv, results)
+
+
 
 ## 10. License
 This project is licensed under the MIT License
+
+
 
 ## 11. Author
 [Mostafa Mohamed]
