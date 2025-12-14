@@ -1,0 +1,398 @@
+{% extends "base.html" %}
+
+{% block title %}Optimizer - IA Project{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <h2><i class="fas fa-sliders-h"></i> GA Optimizer Configuration</h2>
+        <p class="text-muted">Configure and run genetic algorithm optimization</p>
+    </div>
+</div>
+
+<!-- Configuration Form -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-cog"></i> Optimization Parameters</h5>
+            </div>
+            <div class="card-body">
+                <form id="configForm">
+                    <!-- Dataset Selection -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="datasetName" class="form-label">
+                                <strong>Dataset</strong>
+                            </label>
+                            <select class="form-select" id="datasetName" name="dataset_name" required>
+                                <option value="iris">Iris</option>
+                                <option value="breast_cancer">Breast Cancer</option>
+                                <option value="wine">Wine</option>
+                            </select>
+                            <small class="text-muted">Select dataset for optimization</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="populationSize" class="form-label">
+                                <strong>Population Size</strong>
+                            </label>
+                            <input type="number" class="form-control" id="populationSize" name="population_size" min="5"
+                                max="100" value="20" required>
+                            <small class="text-muted">Number of individuals per generation</small>
+                        </div>
+                    </div>
+
+                    <!-- Generations and Elite Size -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="generations" class="form-label">
+                                <strong>Generations</strong>
+                            </label>
+                            <input type="number" class="form-control" id="generations" name="generations" min="1"
+                                max="200" value="50" required>
+                            <small class="text-muted">Number of evolution generations</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="eliteSize" class="form-label">
+                                <strong>Elite Size</strong>
+                            </label>
+                            <input type="number" class="form-control" id="eliteSize" name="elite_size" min="1" max="50"
+                                value="2" required>
+                            <small class="text-muted">Number of elite individuals to preserve</small>
+                        </div>
+                    </div>
+
+                    <!-- Mutation and Crossover Rates -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="mutationRate" class="form-label">
+                                <strong>Mutation Rate</strong>
+                                <span id="mutationRateValue" class="badge bg-info">0.03</span>
+                            </label>
+                            <input type="range" class="form-range" id="mutationRate" name="mutation_rate" min="0"
+                                max="1" step="0.01" value="0.03" required>
+                            <small class="text-muted">Probability of gene mutation (0.0 - 1.0)</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="crossoverRate" class="form-label">
+                                <strong>Crossover Rate</strong>
+                                <span id="crossoverRateValue" class="badge bg-info">0.8</span>
+                            </label>
+                            <input type="range" class="form-range" id="crossoverRate" name="crossover_rate" min="0"
+                                max="1" step="0.01" value="0.8" required>
+                            <small class="text-muted">Probability of crossover (0.0 - 1.0)</small>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-success btn-lg w-100" id="runButton">
+                                <i class="fas fa-play"></i> Run Optimization
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Progress Bar -->
+                <div id="progressContainer" class="mt-4" style="display: none;">
+                    <div class="progress" style="height: 25px;">
+                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated"
+                            role="progressbar" style="width: 0%">
+                            <span id="progressText">0%</span>
+                        </div>
+                    </div>
+                    <p class="text-muted mt-2">
+                        Current Generation: <strong id="currentGen">0</strong> / <strong id="totalGen">0</strong>
+                    </p>
+                </div>
+
+                <!-- Completion Message -->
+                <div id="completionMessage" class="mt-4 alert alert-success" style="display: none;">
+                    <h5><i class="fas fa-check-circle"></i> Optimization Completed Successfully!</h5>
+                    <p class="mb-2">The genetic algorithm has finished evolving the best neural network architecture.
+                    </p>
+                    <div class="mt-3">
+                        <a href="/dashboard" class="btn btn-primary me-2">
+                            <i class="fas fa-chart-line"></i> View Dashboard
+                        </a>
+                        <a href="/architecture" class="btn btn-success">
+                            <i class="fas fa-project-diagram"></i> View Best Architecture
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parameter Info -->
+    <div class="col-lg-4">
+        <div class="card shadow bg-light">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Parameter Guide</h5>
+            </div>
+            <div class="card-body">
+                <h6>Population Size</h6>
+                <p class="small">More individuals = better exploration but slower</p>
+
+                <h6>Generations</h6>
+                <p class="small">More generations = better convergence but longer runtime</p>
+
+                <h6>Elite Size</h6>
+                <p class="small">Preserve best solutions (typically 5-10% of population)</p>
+
+                <h6>Mutation Rate</h6>
+                <p class="small">0.03 (3%) is typical; higher = more exploration</p>
+
+                <h6>Crossover Rate</h6>
+                <p class="small">0.8 (80%) is typical; higher = more mixing</p>
+            </div>
+        </div>
+
+        <!-- Quick Presets -->
+        <div class="card shadow mt-3">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-bookmark"></i> Presets</h5>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-sm btn-outline-primary w-100 mb-2" onclick="loadPreset('quick')">
+                    Quick (5 gen, 20 pop)
+                </button>
+                <button class="btn btn-sm btn-outline-primary w-100 mb-2" onclick="loadPreset('balanced')">
+                    Balanced (30 gen, 30 pop)
+                </button>
+                <button class="btn btn-sm btn-outline-primary w-100" onclick="loadPreset('thorough')">
+                    Thorough (50 gen, 50 pop)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Preset configurations
+    const presets = {
+        quick: {
+            population_size: 20,
+            generations: 5,
+            mutation_rate: 0.05,
+            crossover_rate: 0.8,
+            elite_size: 2
+        },
+        balanced: {
+            population_size: 30,
+            generations: 30,
+            mutation_rate: 0.03,
+            crossover_rate: 0.8,
+            elite_size: 2
+        },
+        thorough: {
+            population_size: 50,
+            generations: 50,
+            mutation_rate: 0.03,
+            crossover_rate: 0.8,
+            elite_size: 5
+        }
+    };
+
+    // Load preset
+    function loadPreset(presetName) {
+        const preset = presets[presetName];
+        document.getElementById('populationSize').value = preset.population_size;
+        document.getElementById('generations').value = preset.generations;
+        document.getElementById('mutationRate').value = preset.mutation_rate;
+        document.getElementById('crossoverRate').value = preset.crossover_rate;
+        document.getElementById('eliteSize').value = preset.elite_size;
+
+        updateRateDisplay();
+        showAlert(`Loaded "${presetName}" preset`, 'success', 2000);
+    }
+
+    // Update rate display
+    function updateRateDisplay() {
+        const mutRate = parseFloat(document.getElementById('mutationRate').value);
+        const crossRate = parseFloat(document.getElementById('crossoverRate').value);
+
+        document.getElementById('mutationRateValue').textContent = mutRate.toFixed(2);
+        document.getElementById('crossoverRateValue').textContent = crossRate.toFixed(2);
+    }
+
+    // Listen to range inputs
+    document.getElementById('mutationRate').addEventListener('input', updateRateDisplay);
+    document.getElementById('crossoverRate').addEventListener('input', updateRateDisplay);
+
+    // Form submission
+    document.getElementById('configForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const config = {
+            dataset_name: formData.get('dataset_name'),
+            population_size: parseInt(formData.get('population_size')),
+            generations: parseInt(formData.get('generations')),
+            mutation_rate: parseFloat(document.getElementById('mutationRate').value),
+            crossover_rate: parseFloat(document.getElementById('crossoverRate').value),
+            elite_size: parseInt(formData.get('elite_size'))
+        };
+
+        // Get CSRF token
+        const token = await getCsrfToken();
+
+        try {
+            // First save config
+            const configResponse = await fetch('/api/config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': token
+                },
+                body: JSON.stringify(config)
+            });
+
+            const configData = await configResponse.json();
+
+            if (configData.status === 'error') {
+                showAlert('Error: ' + configData.message, 'danger');
+                return;
+            }
+
+            showAlert('Configuration saved! Starting optimization...', 'success');
+
+            // Hide completion message if visible
+            document.getElementById('completionMessage').style.display = 'none';
+
+            // Clear completion flag from sessionStorage
+            sessionStorage.removeItem('optimizationCompleted');
+
+            // Show progress container
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('totalGen').textContent = config.generations;
+            document.getElementById('runButton').disabled = true;
+
+            // Now run GA
+            const gaResponse = await fetch('/api/ga/run', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': token
+                },
+                body: JSON.stringify({})
+            });
+
+            const gaData = await gaResponse.json();
+
+            if (gaData.status === 'error') {
+                showAlert('Error: ' + gaData.message, 'danger');
+                document.getElementById('runButton').disabled = false;
+                return;
+            }
+
+            showAlert('Optimization started! Please wait...', 'info');
+
+            // Start progress polling
+            pollGAProgress(config.generations);
+
+        } catch (error) {
+            showAlert('Error: ' + error.message, 'danger');
+            document.getElementById('runButton').disabled = false;
+            console.error('Form submission error:', error);
+        }
+    });
+
+    // Poll GA progress
+    function pollGAProgress(totalGen) {
+        const pollInterval = setInterval(async function () {
+            try {
+                const response = await fetch('/api/ga/status');
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    const gaState = data.data;
+                    const progressPercent = gaState.progress || 0;
+
+                    document.getElementById('progressBar').style.width = progressPercent + '%';
+                    document.getElementById('progressText').textContent = progressPercent + '%';
+                    document.getElementById('currentGen').textContent = gaState.current_generation;
+
+                    // Stop if GA is no longer running
+                    if (!gaState.running && progressPercent >= 100) {
+                        clearInterval(pollInterval);
+
+                        // Hide progress bar and show completion message
+                        document.getElementById('progressContainer').style.display = 'none';
+                        document.getElementById('completionMessage').style.display = 'block';
+                        document.getElementById('runButton').disabled = false;
+
+                        // Set completion flag in sessionStorage (persists across page navigation)
+                        sessionStorage.setItem('optimizationCompleted', 'true');
+
+                        showAlert('Optimization completed! View results in Dashboard or Architecture page.', 'success', 10000);
+                    }
+                }
+            } catch (error) {
+                console.error('Error polling progress:', error);
+                clearInterval(pollInterval);
+                document.getElementById('runButton').disabled = false;
+            }
+        }, 500); // Poll every 500ms
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function () {
+        updateRateDisplay();
+        loadCurrentConfig();
+
+        // Check if optimization was completed (persists across page navigation)
+        if (sessionStorage.getItem('optimizationCompleted') === 'true') {
+            document.getElementById('completionMessage').style.display = 'block';
+        }
+    });
+
+    // Load current config from server
+    async function loadCurrentConfig() {
+        try {
+            const response = await fetch('/api/config');
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                const cfg = data.data;
+                document.getElementById('datasetName').value = cfg.dataset;
+                document.getElementById('populationSize').value = cfg.population_size;
+                document.getElementById('generations').value = cfg.generations;
+                document.getElementById('mutationRate').value = cfg.mutation_rate;
+                document.getElementById('crossoverRate').value = cfg.crossover_rate;
+                document.getElementById('eliteSize').value = cfg.elite_size;
+                updateRateDisplay();
+            }
+        } catch (error) {
+            console.error('Error loading config:', error);
+        }
+    }
+</script>
+
+<style>
+    .form-range {
+        height: 8px;
+        border-radius: 4px;
+    }
+
+    .form-range::-webkit-slider-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #28a745;
+    }
+
+    .form-range::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #28a745;
+    }
+
+    .badge {
+        font-size: 0.8rem;
+        margin-left: 5px;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block title %}Problem Explanation - IA Project{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <h2><i class="fas fa-book"></i> Problem Explanation & Methodology</h2>
+        <p class="text-muted">Understanding the optimization problem, fitness function, and constraints</p>
+    </div>
+</div>
+
+<!-- Problem Statement -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-question-circle"></i> What Problem Are We Solving?</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-success">Objective:</h6>
+                <p>
+                    We are optimizing <strong>Neural Network Architectures</strong> for deployment on <strong>IoT Edge
+                        Devices</strong>
+                    (e.g., Raspberry Pi, smartphones, embedded systems) where resources are limited.
+                </p>
+
+                <h6 class="text-success mt-3">The Challenge:</h6>
+                <ul>
+                    <li><strong>Accuracy vs. Efficiency Trade-off:</strong> We need models that are both accurate AND
+                        lightweight</li>
+                    <li><strong>Manual Design is Time-Consuming:</strong> Finding the optimal architecture manually
+                        requires extensive trial and error</li>
+                    <li><strong>Resource Constraints:</strong> Edge devices have limited memory, processing power, and
+                        energy</li>
+                    <li><strong>Real-time Requirements:</strong> Inference must be fast enough for real-time
+                        applications</li>
+                </ul>
+
+                <h6 class="text-success mt-3">Our Solution:</h6>
+                <p>
+                    Use <strong>Genetic Algorithms (GA)</strong> to automatically search for the best neural network
+                    architecture
+                    that balances multiple objectives: high accuracy, small model size, fast inference, and quick
+                    training.
+                </p>
+
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-lightbulb"></i> <strong>Key Insight:</strong>
+                    Instead of manually designing networks, we let evolution find the optimal architecture through
+                    natural selection!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fitness Function -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-calculator"></i> Fitness Function Explained</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-primary">Mathematical Formula:</h6>
+                <div class="alert alert-light">
+                    <code
+                        style="font-size: 1.1rem; display: block; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                        Fitness = W_acc × accuracy_norm - W_size × size_penalty - W_inf × inference_penalty - W_train × training_penalty
+                    </code>
+                </div>
+
+                <h6 class="text-primary mt-4">Component Breakdown:</h6>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Component</th>
+                                <th>Weight</th>
+                                <th>Range</th>
+                                <th>Explanation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>accuracy_norm</strong></td>
+                                <td>W_acc = 1.0</td>
+                                <td>[0, 1]</td>
+                                <td>
+                                    Normalized accuracy above the minimum threshold (75%).
+                                    <br><em>Formula:</em> (accuracy - 0.75) / (1.0 - 0.75)
+                                    <br><em>Why:</em> Rewards models that exceed the minimum accuracy requirement
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>size_penalty</strong></td>
+                                <td>W_size = 0.5</td>
+                                <td>[0, 1]</td>
+                                <td>
+                                    Ratio of model parameters to maximum allowed (10,000).
+                                    <br><em>Formula:</em> n_parameters / 10,000
+                                    <br><em>Why:</em> Penalizes larger models to encourage compact architectures
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>inference_penalty</strong></td>
+                                <td>W_inf = 0.2</td>
+                                <td>[0, 1]</td>
+                                <td>
+                                    Ratio of inference time to maximum allowed (1.0 second).
+                                    <br><em>Formula:</em> inference_time / 1.0
+                                    <br><em>Why:</em> Penalizes slow inference for real-time applications
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>training_penalty</strong></td>
+                                <td>W_train = 0.1</td>
+                                <td>[0, 1]</td>
+                                <td>
+                                    Ratio of training time to maximum allowed (300 seconds).
+                                    <br><em>Formula:</em> training_time / 300
+                                    <br><em>Why:</em> Penalizes models that take too long to train
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h6 class="text-primary mt-4">Fitness Range:</h6>
+                <ul>
+                    <li><strong>Best Possible:</strong> 1.0 (100% accuracy, 0 parameters, 0 time)</li>
+                    <li><strong>Worst Valid:</strong> -0.8 (75% accuracy at thresholds, max parameters/time)</li>
+                    <li><strong>Invalid:</strong> -1000 (constraint violation)</li>
+                </ul>
+
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Note:</strong>
+                    The weights (1.0, 0.5, 0.2, 0.1) reflect our priorities: accuracy is most important,
+                    followed by model size, then inference speed, and finally training time.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hard Constraints -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-ban"></i> Hard Constraints (Must Satisfy ALL)</h5>
+            </div>
+            <div class="card-body">
+                <p class="lead">
+                    These are <strong>non-negotiable requirements</strong>. Any model violating even one constraint
+                    receives a fitness of <code>-1000</code> and is rejected.
+                </p>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="text-danger"><i class="fas fa-check-circle"></i> Minimum Accuracy</h6>
+                                <p><strong>Threshold:</strong> ≥ 75%</p>
+                                <p><strong>Reason:</strong> Models below 75% accuracy are not useful for production
+                                    deployment.
+                                    This ensures we only consider models that meet basic performance requirements.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="text-danger"><i class="fas fa-microchip"></i> Maximum Parameters</h6>
+                                <p><strong>Threshold:</strong> ≤ 10,000 parameters</p>
+                                <p><strong>Reason:</strong> IoT devices have limited memory (often just a few MB of
+                                    RAM).
+                                    Larger models won't fit in memory or will cause out-of-memory errors.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="text-danger"><i class="fas fa-clock"></i> Maximum Training Time</h6>
+                                <p><strong>Threshold:</strong> ≤ 300 seconds (5 minutes)</p>
+                                <p><strong>Reason:</strong> Faster training allows quicker iteration during development.
+                                    Models taking too long to train are impractical for rapid prototyping.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="text-danger"><i class="fas fa-tachometer-alt"></i> Maximum Inference Time
+                                </h6>
+                                <p><strong>Threshold:</strong> ≤ 1.0 second per sample</p>
+                                <p><strong>Reason:</strong> Real-time applications require fast predictions.
+                                    Slow inference makes the model unusable for interactive or time-sensitive tasks.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-danger mt-3">
+                    <i class="fas fa-exclamation-circle"></i> <strong>Important:</strong>
+                    Hard constraints act as a filter. The GA only optimizes among architectures that satisfy ALL
+                    constraints.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Why This Approach -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-lightbulb"></i> Why This Fitness Function & These Constraints?</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-info">Design Rationale:</h6>
+
+                <div class="accordion" id="rationaleAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapse1">
+                                1. Multi-Objective Optimization
+                            </button>
+                        </h2>
+                        <div id="collapse1" class="accordion-collapse collapse show"
+                            data-bs-parent="#rationaleAccordion">
+                            <div class="accordion-body">
+                                Real-world problems rarely have a single objective. We care about accuracy, size, speed,
+                                and training time simultaneously.
+                                The weighted sum approach allows us to balance these competing objectives based on our
+                                priorities.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapse2">
+                                2. Normalization to [0,1]
+                            </button>
+                        </h2>
+                        <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#rationaleAccordion">
+                            <div class="accordion-body">
+                                All components are normalized to the same scale [0,1] to ensure fair weighting.
+                                Without normalization, components with larger raw values would dominate the fitness
+                                calculation.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapse3">
+                                3. Hard Constraints vs. Soft Penalties
+                            </button>
+                        </h2>
+                        <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#rationaleAccordion">
+                            <div class="accordion-body">
+                                Hard constraints ensure we never waste time optimizing unusable models.
+                                Soft penalties (in the fitness function) allow fine-tuning among valid candidates.
+                                This two-tier approach is more efficient than pure penalty methods.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapse4">
+                                4. Weight Selection
+                            </button>
+                        </h2>
+                        <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#rationaleAccordion">
+                            <div class="accordion-body">
+                                Weights reflect domain priorities: <br>
+                                • <strong>Accuracy (1.0):</strong> Most important - a useless model is worthless
+                                regardless of size<br>
+                                • <strong>Size (0.5):</strong> Critical for edge deployment<br>
+                                • <strong>Inference (0.2):</strong> Important for user experience<br>
+                                • <strong>Training (0.1):</strong> Least critical - only matters during development
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Example -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-flask"></i> Example Calculation</h5>
+            </div>
+            <div class="card-body">
+                <h6>Scenario: Model with the following metrics</h6>
+                <ul>
+                    <li>Accuracy: 90% (0.90)</li>
+                    <li>Parameters: 5,000</li>
+                    <li>Inference time: 0.3 seconds</li>
+                    <li>Training time: 150 seconds</li>
+                </ul>
+
+                <h6 class="mt-3">Step 1: Check Hard Constraints</h6>
+                <ul class="list-unstyled">
+                    <li>✅ Accuracy 90% ≥ 75% → PASS</li>
+                    <li>✅ Parameters 5,000 ≤ 10,000 → PASS</li>
+                    <li>✅ Training time 150s ≤ 300s → PASS</li>
+                    <li>✅ Inference time 0.3s ≤ 1.0s → PASS</li>
+                </ul>
+
+                <h6 class="mt-3">Step 2: Calculate Fitness</h6>
+                <pre class="bg-light p-3">
+accuracy_norm = (0.90 - 0.75) / (1.0 - 0.75) = 0.60
+size_penalty = 5000 / 10000 = 0.50
+inference_penalty = 0.3 / 1.0 = 0.30
+training_penalty = 150 / 300 = 0.50
+
+Fitness = 1.0 × 0.60 - 0.5 × 0.50 - 0.2 × 0.30 - 0.1 × 0.50
+        = 0.60 - 0.25 - 0.06 - 0.05
+        = <strong>0.24</strong>
+                </pre>
+
+                <div class="alert alert-success">
+                    <strong>Result:</strong> This model has a fitness of <strong>0.24</strong>, which is positive and
+                    indicates
+                    a valid, reasonably good solution. The GA will prefer models with higher fitness values.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

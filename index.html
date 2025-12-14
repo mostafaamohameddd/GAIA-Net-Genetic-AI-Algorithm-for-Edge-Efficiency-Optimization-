@@ -1,0 +1,153 @@
+<!-- ===== INDEX.HTML ===== -->
+<!-- Home Page -->
+{% extends "base.html" %}
+
+{% block title %}Home - IA Project{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="jumbotron bg-light p-4 rounded">
+            <h1 class="display-4"><i class="fas fa-leaf"></i> IA Project</h1>
+            <p class="lead">Neural Network Optimization with Genetic Algorithms for IoT Edge Devices</p>
+            <hr class="my-4">
+            <p>Automated architecture search, multi-objective optimization, and production-ready deployment</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Configuration Card -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-cog"></i> Configuration</h5>
+            </div>
+            <div class="card-body">
+                <div id="configContent">
+                    <p class="text-muted">Loading configuration...</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-sm btn-primary" onclick="loadConfiguration()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Start Card -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-rocket"></i> Quick Start</h5>
+            </div>
+            <div class="card-body">
+                <p>Get started with IA Project:</p>
+                <ol>
+                    <li>Review Configuration</li>
+                    <li>Run Optimization</li>
+                    <li>View Results</li>
+                    <li>Deploy Solution</li>
+                </ol>
+                <a href="/dashboard" class="btn btn-success btn-sm mt-3">
+                    <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Card -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-star"></i> Features</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success"></i> Automated Architecture Search</li>
+                    <li><i class="fas fa-check text-success"></i> Multi-Objective Optimization</li>
+                    <li><i class="fas fa-check text-success"></i> Hard Constraints Enforcement</li>
+                    <li><i class="fas fa-check text-success"></i> Elite Preservation</li>
+                    <li><i class="fas fa-check text-success"></i> Professional Analytics</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Statistics -->
+    <div class="col-lg-12">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Project Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h3 id="stat-generations">-</h3>
+                        <p class="text-muted">Total Generations</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 id="stat-evaluations">-</h3>
+                        <p class="text-muted">Total Evaluations</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 id="stat-best">-</h3>
+                        <p class="text-muted">Best Fitness</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 id="stat-avg">-</h3>
+                        <p class="text-muted">Final Avg Fitness</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function loadConfiguration() {
+    fetch('/api/config')
+        .then(response => response.json())
+        .then(data => {
+            const config = data.data;
+            let html = '<div class="table-responsive"><table class="table table-sm table-borderless">';
+            
+            // Use DOMPurify to sanitize all values from API
+            html += '<tr><td><strong>Dataset:</strong></td><td>' + DOMPurify.sanitize(String(config.dataset)) + '</td></tr>';
+            html += '<tr><td><strong>Population:</strong></td><td>' + DOMPurify.sanitize(String(config.population_size)) + '</td></tr>';
+            html += '<tr><td><strong>Generations:</strong></td><td>' + DOMPurify.sanitize(String(config.generations)) + '</td></tr>';
+            html += '<tr><td><strong>Mutation Rate:</strong></td><td>' + DOMPurify.sanitize((config.mutation_rate * 100).toFixed(2) + '%') + '</td></tr>';
+            html += '<tr><td><strong>Accuracy Threshold:</strong></td><td>' + DOMPurify.sanitize((config.min_accuracy * 100).toFixed(2) + '%') + '</td></tr>';
+            
+            html += '</table></div>';
+            
+            // Sanitize entire HTML before setting
+            document.getElementById('configContent').innerHTML = DOMPurify.sanitize(html);
+        })
+        .catch(error => showAlert('Error loading configuration', 'danger'));
+}
+
+function loadStats() {
+    fetch('/api/dashboard/summary')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const summary = data.data;
+                document.getElementById('stat-generations').textContent = summary.total_generations;
+                document.getElementById('stat-evaluations').textContent = summary.total_evaluations;
+                document.getElementById('stat-best').textContent = summary.best_fitness.toFixed(4);
+                document.getElementById('stat-avg').textContent = summary.final_avg_fitness.toFixed(4);
+            }
+        })
+        .catch(error => console.log('Stats not available yet'));
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadConfiguration();
+    loadStats();
+});
+</script>
+{% endblock %}

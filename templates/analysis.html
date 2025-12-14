@@ -1,0 +1,256 @@
+<!-- ===== ANALYSIS.HTML - UPDATED ===== -->
+<!-- (Replace the old analysis.html with this) -->
+{% extends "base.html" %}
+
+{% block title %}Analysis - IA Project{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <h2><i class="fas fa-chart-line"></i> Detailed Analysis</h2>
+        <p class="text-muted">Best solution architecture and metrics</p>
+    </div>
+</div>
+
+<!-- Best Architecture -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-network-wired"></i> Best Neural Network Architecture</h5>
+            </div>
+            <div class="card-body">
+                <div id="architectureDisplay">
+                    <p class="text-muted text-center">Loading architecture...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chromosome Info -->
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-dna"></i> Chromosome Data</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <label class="form-label"><strong>Raw Chromosome:</strong></label>
+                    <code id="genomeContent" style="display: block; background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; max-height: 150px; overflow-y: auto; font-size: 0.85rem;">
+                        Loading...
+                    </code>
+                    <button class="btn btn-sm btn-outline-primary mt-2" onclick="copyGenome()">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Metrics -->
+<div class="row mb-4">
+    <div class="col-lg-4">
+        <div class="card shadow bg-light">
+            <div class="card-body">
+                <h6 class="text-muted">Best Fitness</h6>
+                <h3 id="metricBest">-</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow bg-light">
+            <div class="card-body">
+                <h6 class="text-muted">Final Avg Fitness</h6>
+                <h3 id="metricAvg">-</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow bg-light">
+            <div class="card-body">
+                <h6 class="text-muted">Total Evaluations</h6>
+                <h3 id="metricEvals">-</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Evolution History Table -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-table"></i> Generation-by-Generation Evolution</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="evolutionTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Gen</th>
+                                <th>Evals</th>
+                                <th>Min</th>
+                                <th>Avg</th>
+                                <th>Max</th>
+                                <th>Improvement</th>
+                            </tr>
+                        </thead>
+                        <tbody id="evolutionBody">
+                            <tr><td colspan="6" class="text-center text-muted">Loading data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.architecture-display {
+    text-align: center;
+}
+
+.layer-box {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 10px 0;
+    font-weight: 600;
+}
+
+.input-layer .layer-box, .output-layer .layer-box {
+    background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+}
+
+.hidden-layer .layer-box {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.layer-details {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+.arrow {
+    font-size: 1.5rem;
+    color: #28a745;
+    margin: 5px 0;
+}
+
+code {
+    word-break: break-all;
+}
+</style>
+
+<script>
+function loadArchitecture() {
+    fetch('/api/architecture')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const arch = data.data;
+                let html = `
+                    <div class="architecture-display">
+                        <div class="layer-box">📥 Input Layer</div>
+                        <div class="layer-details">4 features</div>
+                        <div class="arrow">↓</div>
+                `;
+                
+                arch.layers.forEach((layer, i) => {
+                    const neurons = DOMPurify.sanitize(String(layer.neurons));
+                    const activation = DOMPurify.sanitize(String(layer.activation).toUpperCase());
+                    const activationCode = DOMPurify.sanitize(String(layer.activation));
+                    
+                    html += `
+                        <div class="hidden-layer">
+                            <div class="layer-box">
+                                🧠 ${neurons} neurons<br>
+                                <small>${activation}</small>
+                            </div>
+                            <div class="layer-details">
+                                Activation: <code>${activationCode}</code>
+                            </div>
+                        </div>
+                        <div class="arrow">↓</div>
+                    `;
+                });
+                
+                const learningRate = DOMPurify.sanitize(String(arch.learning_rate.toFixed(6)));
+                
+                html += `
+                        <div class="layer-box">📤 Output Layer</div>
+                        <div class="layer-details">3 classes</div>
+                        <hr class="my-3">
+                        <p><strong>Learning Rate:</strong> <code>${learningRate}</code></p>
+                    </div>
+                `;
+                
+                // Sanitize entire HTML before setting
+                document.getElementById('architectureDisplay').innerHTML = DOMPurify.sanitize(html);
+            } else {
+                const message = DOMPurify.sanitize(String(data.message || 'Error loading architecture'));
+                document.getElementById('architectureDisplay').innerHTML = `<p class="text-danger">${message}</p>`;
+            }
+        })
+        .catch(error => {
+            const errorMsg = DOMPurify.sanitize(String(error.message));
+            document.getElementById('architectureDisplay').innerHTML = `<p class="text-danger">Error: ${errorMsg}</p>`;
+        });
+}
+
+function loadResults() {
+    fetch('/api/results')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById('genomeContent').textContent = data.data.genome;
+            }
+        })
+        .catch(error => console.log('Error loading results'));
+}
+
+function loadMetrics() {
+    fetch('/api/dashboard/summary')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const s = data.data;
+                document.getElementById('metricBest').textContent = s.best_fitness.toFixed(4);
+                document.getElementById('metricAvg').textContent = s.final_avg_fitness.toFixed(4);
+                document.getElementById('metricEvals').textContent = s.total_evaluations;
+            }
+        })
+        .catch(error => console.log('Error loading metrics'));
+}
+
+function loadEvolutionTable() {
+    fetch('/api/results')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success' && data.data.history_count > 0) {
+                // Note: Load from evolution_history.csv for complete data
+                const tbody = document.getElementById('evolutionBody');
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">See evolution_history.csv for complete data</td></tr>';
+            }
+        })
+        .catch(error => console.log('Error loading table'));
+}
+
+function copyGenome() {
+    const genome = document.getElementById('genomeContent').textContent;
+    navigator.clipboard.writeText(genome).then(() => {
+        showAlert('Chromosome copied to clipboard!', 'success', 2000);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadArchitecture();
+    loadResults();
+    loadMetrics();
+    loadEvolutionTable();
+});
+</script>
+{% endblock %}
