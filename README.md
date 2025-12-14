@@ -5,28 +5,29 @@ A production-grade Neural Architecture Search (NAS) system that utilizes a Genet
 
 The final optimized architecture is packaged and served through a Flask Web Interface, demonstrating deployment readiness and adherence to strict hardware constraints.
 
-Table of Contents
-Overview
+## Table of Contents
 
-Key Features
+1. Overview
 
-Problem & Solution
+2. Key Features
 
-Methodology: The Genetic Algorithm
+3. Problem & Solution
 
-System Architecture
+4. Methodology: The Genetic Algorithm
 
-Technologies Used
+5. System Architecture
 
-Key Results & Achievements
+6. Technologies Used
 
-Deployment & Usage
+7. Key Results & Achievements
 
-Project Structure
+8. Deployment & Usage
 
-License
+9. Project Structure
 
-Author
+10. License
+
+11. Author
 
 
 ## 1. Overview
